@@ -40,8 +40,7 @@ Welcome to **Python Concepts Lab** — a personal and public reference of fundam
 
 This repo is evolving. Expect:
 - More concepts and real-world use cases
-- Unit tests and benchmark comparisons
-- Visual diagrams and cheatsheets
+
 
 ---
 
