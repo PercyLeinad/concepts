@@ -34,6 +34,7 @@ Welcome to **Python Concepts Lab** — a personal and public reference of fundam
 - **Rate Limiting** – Control function call frequency.
 - **Lazy Evaluation** – Evaluate expressions only when needed.
 
+### 🔆 Functional programming (map, reduce, filter)
 ---
 
 ## 🚧 In Progress
