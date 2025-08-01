@@ -3,7 +3,7 @@ from urllib3.exceptions import ProtocolError
 import time
 import random
 
-# url = 'http://localhost:8080/status/100,200,300,400,500'
+# url = 'http://localhost:8080/status/100,200,300,400,500' # docker local image 
 url = 'https://httpbin.org/status/100,200,300,400,500'
 
 def get_response(url) -> int:
