@@ -19,7 +19,7 @@ def backoff_with_jitter(test_url,base_delay = 1,max_attempts = 8):
             else:
                 raise ValueError(f"{response}")        
         except (requests.RequestException, ProtocolError, ValueError) as e:
-            delay = base_delay + random.uniform(0, 1)
+            delay = base_delay + random.uniform(0, 1) # simple jitter
             print(f'Trial {attempt}: {e} — Retrying after {delay}s...')
             time.sleep(delay)
 
