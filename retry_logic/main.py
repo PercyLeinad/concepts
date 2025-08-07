@@ -1,28 +1,48 @@
 import requests
-from urllib3.exceptions import ProtocolError
 import time
 import random
 
-# url = 'http://localhost:8080/status/100,200,300,400,500' # docker local image 
-url = 'https://httpbin.org/status/100,200,300,400,500'
+class InvalidReturnCodeError(Exception):
+    def __init__(self, value):
+        super().__init__(f"Invalid return code: {value}")
+        self.value = value
 
 def get_response(url) -> int:
-    res = requests.get(url)
-    return res.status_code
+    try:
+        res = requests.get(url)
+        return res.status_code
+    except requests.exceptions.ConnectionError:
+        return 100  # Return a sentinel value
 
-def backoff_fn(test_url,max_tries = 10):
-    for trial in range(1,max_tries+1):
+def backoff_fn(test_url, max_tries=10):
+    for trial in range(1, max_tries + 1):
         try:
             response = get_response(test_url)
+
             if response == 200:
-                return f'Success {response}'
-            else:
-                raise ValueError(f"{response}")        
-        except (requests.RequestException, ProtocolError, ValueError) as e:
-            delay = random.randint(1,5)
-            print(f'Trial {trial}: {e} — Retrying after {delay}s...')
-            time.sleep(delay)
+                return response
 
-    return "Failed after {} trials".format(max_tries)
+            # Raise custom exception for specific invalid codes
+            if response in {100, 300, 400, 500}:
+                raise InvalidReturnCodeError(response)
 
-print(backoff_fn(url))
+            # Catch-all for other non-200 codes
+            raise Exception(f"Unexpected status code: {response}")
+
+        except InvalidReturnCodeError as e:
+            print(f"Trial {trial} — {e}. Retrying...")
+        except Exception as e:
+            print(f"Trial {trial} — {e}. Retrying...")
+
+        delay = random.randint(1, 5)
+        time.sleep(delay)
+
+    print(f"Failed after {max_tries} trials.")
+
+if __name__ == '__main__':
+    url = 'http://localhost:8080/status/100,200,300,400,500'
+    # url = 'https://httpbin.org/status/100,200,300,400,500'
+    
+    result = backoff_fn(url)
+    if result == 200:
+        print('✅ Success')
