@@ -1,3 +1,11 @@
 mysql-connector-python
 scrapy
 python-dotenv
+aiohttp
+beautifulsoup4
+requests
+selectolax
+scrapy
+ipykernel
+ipython
+termcolor
