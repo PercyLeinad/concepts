@@ -6,7 +6,6 @@ import requests
 from urllib3.exceptions import InsecureRequestWarning
 from urllib3.util.retry import Retry
 from requests.adapters import HTTPAdapter
-from selectolax.parser import HTMLParser
 import urllib3
 
 urllib3.disable_warnings(InsecureRequestWarning)
