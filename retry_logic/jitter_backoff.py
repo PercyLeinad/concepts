@@ -1,28 +1,41 @@
 import time
 import random
-from urllib3.exceptions import ProtocolError
 import requests
 
-url = 'http://localhost:8080/status/100,200,300,400,500'
-# url = 'https://httpbin.org/status/100,200,300,400,500'
+class InvalidReturnCodeError(Exception):
+    def __init__(self, value):
+        super().__init__(f"Invalid return code: {value}")
+        self.value = value
 
 def get_response(url) -> int:
-    res = requests.get(url)
-    return res.status_code
+    try:
+        res = requests.get(url)
+        return res.status_code
+    except requests.exceptions.ConnectionError:
+        return 100 
 
-def backoff_with_jitter(test_url,base_delay = 1,max_attempts = 8):
-    for attempt in range(max_attempts):
+def backoff_with_jitter(test_url,base_delay = 1,max_attempts = 5):
+    for attempt in range(1,max_attempts + 1):
         try:
             response = get_response(test_url)
+
             if response == 200:
-                return f'Success {response}'
+                return 200
             else:
-                raise ValueError(f"{response}")        
-        except (requests.RequestException, ProtocolError, ValueError) as e:
-            delay = base_delay + random.uniform(0, 1) # simple jitter
+                raise InvalidReturnCodeError(response)
+                 
+        except InvalidReturnCodeError as e:
+            delay = base_delay + random.uniform(0, 3) # simple jitter
             print(f'Trial {attempt}: {e} — Retrying after {delay}s...')
             time.sleep(delay)
 
     return "Failed after {} trials".format(max_attempts)
 
-print(backoff_with_jitter(url,))
+
+if __name__ == '__main__':
+    url = 'http://localhost:8080/status/100,200,300,400,500'
+    # url = 'https://httpbin.org/status/100,200,300,400,500'
+
+    result = backoff_with_jitter(url)
+    if result == 200:
+        print('✅ Success')
